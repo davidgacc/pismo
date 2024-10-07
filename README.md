@@ -13,9 +13,11 @@ docker build -t pismo .
 docker run --name postgres-db -e POSTGRES_DB=postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:latest
 ```
 
-### Create some rows
+### Create tables
 
-Create tables in the file resources/create_tables.sql
+```bash 
+docker exec -i pismo-db-1 psql -U postgres -d postgres < ./src/main/resources/create_tables.sql
+```
 
 ### 3. Run Your Application Container
 ```bash
