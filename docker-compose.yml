@@ -24,6 +24,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./create_operation_types.sql:/docker-entrypoint-initdb.d/create_operation_types.sql
 
 volumes:
   postgres_data:
