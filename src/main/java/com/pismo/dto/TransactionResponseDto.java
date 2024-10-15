@@ -21,7 +21,7 @@ public class TransactionResponseDto {
     private Long accountId;
 
     @JsonProperty("operation_type_id")
-    private Long operationTypeId;
+    private Integer operationTypeId;
 
     private Double amount;
 

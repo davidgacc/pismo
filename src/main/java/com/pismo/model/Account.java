@@ -25,4 +25,7 @@ public class Account {
 
     @Column(name = "document_number", nullable = false, unique = true)
     private String documentNumber;
+
+    @Column(name = "credit_limit", nullable = false, unique = true)
+    private Double creditLimit;
 }

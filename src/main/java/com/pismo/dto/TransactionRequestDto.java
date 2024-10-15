@@ -1,5 +1,6 @@
 package com.pismo.dto;
 
+import com.pismo.model.OperationTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -17,7 +18,7 @@ public class TransactionRequestDto {
     private Long accountId;
 
     @NotNull(message = "Operation Type ID is required.")
-    private Long operationTypeId;
+    private OperationTypeEnum operationType;
 
     @NotNull(message = "Amount is required.")
     @Positive(message = "Amount must be positive.")

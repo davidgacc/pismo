@@ -19,7 +19,7 @@ public class OperationType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "operation_type_id")
-    private Long operationTypeId;
+    private Integer operationTypeId;
 
     private String description;
 

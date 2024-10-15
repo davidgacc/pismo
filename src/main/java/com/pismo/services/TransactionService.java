@@ -1,11 +1,15 @@
 package com.pismo.services;
 
+import static com.pismo.model.OperationTypeEnum.WITHDRAWAL;
+
 import com.pismo.dto.TransactionRequestDto;
 import com.pismo.dto.TransactionResponseDto;
+import com.pismo.exceptions.AccountCreditLimitException;
 import com.pismo.exceptions.AccountNotFoundException;
 import com.pismo.exceptions.OperationTypeNotFoundException;
 import com.pismo.model.Account;
 import com.pismo.model.OperationType;
+import com.pismo.model.OperationTypeEnum;
 import com.pismo.model.Transaction;
 import com.pismo.repository.AccountRepository;
 import com.pismo.repository.OperationTypeRepository;
@@ -27,7 +31,7 @@ public class TransactionService {
 
     public TransactionResponseDto createTransaction(TransactionRequestDto transactionRequestDto) {
         Long accountId = transactionRequestDto.getAccountId();
-        Long operationTypeId = transactionRequestDto.getOperationTypeId();
+        OperationTypeEnum operationType = transactionRequestDto.getOperationType();
         Double amount = transactionRequestDto.getAmount();
 
         // Validate account existence
@@ -35,13 +39,19 @@ public class TransactionService {
             .orElseThrow(() -> new AccountNotFoundException("Account with ID " + accountId + " not found."));
 
         // Validate operation type existence
-        OperationType operationType = operationTypeRepository.findById(operationTypeId)
-            .orElseThrow(() -> new OperationTypeNotFoundException("Operation type with ID " + operationTypeId + " not found."));
+        OperationType transactionOperationType = operationTypeRepository.findById(operationType.getId())
+            .orElseThrow(() -> new OperationTypeNotFoundException("Operation type with ID " + operationType.getId() + " not found."));
+
+        if (operationType == WITHDRAWAL) {
+            doWithDrawal(account, amount);
+        } else {
+            doPayment(account, amount);
+        }
 
         // Create transaction
         Transaction transaction = Transaction.builder()
             .account(account)
-            .operationType(operationType)
+            .operationType(transactionOperationType)
             .amount(amount)
             .build();
 
@@ -55,4 +65,29 @@ public class TransactionService {
             .eventDate(savedTransaction.getEventDate())
             .build();
     }
+
+    private void doPayment(Account account, Double amount) {
+        Double creditLimit = account.getCreditLimit();
+
+        //check limit amount
+        if (creditLimit < amount) {
+            throw new AccountCreditLimitException("Exceed the limit of your account");
+        }
+
+        // update creditLimit
+        Double updateLimitCredit = creditLimit - amount;
+        account.setCreditLimit(updateLimitCredit);
+        accountRepository.save(account);
+
+    }
+
+    private void doWithDrawal(Account account, Double amount) {
+        Double creditLimit = account.getCreditLimit();
+
+        // update creditLimit
+        Double updateLimitCreditWithDrawal = creditLimit + amount;
+        account.setCreditLimit(updateLimitCreditWithDrawal);
+        accountRepository.save(account);
+    }
+
 }
